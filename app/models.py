@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Optional
 
 from pydantic import field_validator
@@ -25,5 +25,5 @@ class ReceiveEnv(SQLModel):
     @field_validator("timestamp", mode="before")
     def convert_to_datetime(cls, v):
         if isinstance(v, list) and len(v) >= 6:
-            return datetime(*v[:6]) - timedelta(hours=-18)
+            return datetime(*v[:6])
         raise ValueError("Invalid datetime format")

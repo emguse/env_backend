@@ -17,21 +17,17 @@ app = FastAPI(title=config.PROJECT_NAME)
 
 class RemoveDuplicateHeadersMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
-        # 重複するContent-Typeヘッダーを処理
         headers = request.headers.mutablecopy()
         if headers.getlist("content-type"):
-            # 重複するContent-Typeを1つにまとめる
             content_type = headers.getlist("content-type")[0]
             headers["content-type"] = content_type
 
-        # リクエストの新しいヘッダーで上書き
         request._headers = headers
 
         response = await call_next(request)
         return response
 
 
-# ミドルウェアの登録
 app.add_middleware(RemoveDuplicateHeadersMiddleware)
 
 
@@ -57,8 +53,8 @@ async def post_test(env_data: ReceiveEnv):
 @app.post("/post-test")
 async def post_test(request: Request):
     header = request.headers
-    body = await request.body()  # リクエストボディを生で取得
-    body_json = json.loads(body)  # JSON形式ならばデコード
+    body = await request.body()
+    body_json = json.loads(body)
     print(header)
     print(body_json)
     return {"body": body_json}

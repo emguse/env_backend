@@ -25,5 +25,5 @@ class ReceiveEnv(SQLModel):
     @field_validator("timestamp", mode="before")
     def convert_to_datetime(cls, v):
         if isinstance(v, list) and len(v) >= 6:
-            return datetime(*v[:6]) - timedelta(hours=-18)  # 年、月、日、時、分、秒を使ってdatetimeに変換
+            return datetime(*v[:6]) - timedelta(hours=-18)
         raise ValueError("Invalid datetime format")

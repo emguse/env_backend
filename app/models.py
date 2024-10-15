@@ -11,7 +11,7 @@ class SensorData(SQLModel, table=True):
     sensor_id: str  # atoms3+env4
     sensor_type: str  # 'temperature', 'humidity', 'pressure'
     value: float
-    timestamp: datetime
+    timestamp: datetime = Field(index=True)
     reg_datetime: datetime = Field(default_factory=datetime.now)
 
 

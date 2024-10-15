@@ -65,7 +65,6 @@ def setup():
     rgb = RGB()
     rgb.set_brightness(20)
     rgb.fill_color(0x009900)
-    time.timezone("GMT+9")
     past_tick = time.ticks_ms()
 
 

@@ -1,65 +1,40 @@
 import json
+import logging
+import logging.config
+from pathlib import Path
+import yaml
 
-from fastapi import FastAPI, Request
-from starlette.middleware.base import BaseHTTPMiddleware
+from fastapi import FastAPI
 import uvicorn
 
-from models import ReceiveEnv
-from config import BaseConfig
-from cruds import insert_env_data
-from db import create_tables
+from app.config.config import BaseConfig
+from app.db.db import create_tables
+from app.middlewares.costom_middleware import RemoveDuplicateHeadersMiddleware, LogClientIPMiddleware
+from app.routers import endpoints
+
+# Load the logging configuration from YAML file
+with open(Path(__file__).parent.parent / "logging.conf", "r") as f:
+    config = yaml.safe_load(f)
+    # Ensure disable_existing_loggers is False
+    config["disable_existing_loggers"] = False
+    logging.config.dictConfig(config)
+logger = logging.getLogger(__name__)
 
 config = BaseConfig()
 
 
 app = FastAPI(title=config.PROJECT_NAME)
-
-
-class RemoveDuplicateHeadersMiddleware(BaseHTTPMiddleware):
-    async def dispatch(self, request: Request, call_next):
-        headers = request.headers.mutablecopy()
-        if headers.getlist("content-type"):
-            content_type = headers.getlist("content-type")[0]
-            headers["content-type"] = content_type
-
-        request._headers = headers
-
-        response = await call_next(request)
-        return response
-
-
+# add middlewares
 app.add_middleware(RemoveDuplicateHeadersMiddleware)
+app.add_middleware(LogClientIPMiddleware)
+# add router
+app.include_router(endpoints.router)
 
-
-@app.get("/")
-async def root():
-    return {"message": "Hello. World!"}
-
-
-@app.get("/hello")
-async def hello():
-    return {"message": "Hello. World!"}
-
-
-@app.post("/post-env4")
-async def post_test(env_data: ReceiveEnv):
-    print(env_data)
-    insert_env_data(env_data.timestamp, env_data.sensor_id, "temperature", env_data.temperature)
-    insert_env_data(env_data.timestamp, env_data.sensor_id, "humidity", env_data.humidity)
-    insert_env_data(env_data.timestamp, env_data.sensor_id, "pressure", env_data.pressure)
-    return {"env_data": env_data}
-
-
-@app.post("/post-test")
-async def post_test(request: Request):
-    header = request.headers
-    body = await request.body()
-    body_json = json.loads(body)
-    print(header)
-    print(body_json)
-    return {"body": body_json}
+create_tables()
+logger.info("Initialization complete")
 
 
 if __name__ == "__main__":
     create_tables()
+    logger.info("attempt start server")
     uvicorn.run(app, host="0.0.0.0", port=8000)

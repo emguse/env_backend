@@ -3,7 +3,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-basedir = Path(__file__).parent.parent
+basedir = Path(__file__).parent.parent.parent
 env_file = ".env"
 env_path = Path.joinpath(basedir, env_file)
 

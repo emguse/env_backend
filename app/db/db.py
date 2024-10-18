@@ -1,13 +1,15 @@
 from sqlmodel import Session, SQLModel, create_engine
 
-import models
-from config import BaseConfig
+import app.models.sensor_models
+from app.config.config import BaseConfig
 
 config = BaseConfig()
 
 DB_URL = f"postgresql+psycopg://{config.DB_USER_NAME}:{config.DB_USER_PASS}@{config.DB_HOST_NAME}:{config.DB_HOST_PORT}/{config.DB_NAME}"
 
 engine = create_engine(f"{DB_URL}?options=-csearch_path%3Denv_backend", echo=config.DB_ECHO)
+
+print(app.models.sensor_models)
 
 
 def get_db():

@@ -27,3 +27,8 @@ class ReceiveEnv(SQLModel):
         if isinstance(v, list) and len(v) >= 6:
             return datetime(*v[:6])
         raise ValueError("Invalid datetime format")
+
+
+class RecieveLog(SQLModel):
+    level: str
+    message: str

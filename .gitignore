@@ -1,5 +1,6 @@
 *.env
 logs/
+env_backend.service
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
